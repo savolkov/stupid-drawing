@@ -1,0 +1,10 @@
+.controls {
+    display: flex;
+    flex-grow: 1;
+    flex-basis: auto;
+    flex-direction: column;
+}
+.controls__btn {
+
+    margin: 4px 4px 4px 4px;
+}

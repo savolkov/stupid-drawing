@@ -1,7 +1,10 @@
 import React from 'react';
 import './DrawZone.css';
 
-class DrawZone extends React.Component {
+type Props = {
+};
+
+class DrawZone extends React.Component<Props> {
     componentDidMount() {
         const c: any = document.getElementById("stupidCanvas");
         c.style.width = '100%';

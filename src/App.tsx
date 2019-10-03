@@ -1,13 +1,11 @@
 import React from 'react';
 import './App.css';
-import DrawZone from './components/DrawZone/DrawZone';
-import Controls from './components/Controls/Controls';
+import StupidDrawing from './components/StupidDrawing/StupidDrawing';
 
 const App: React.FC = () => {
   return (
     <div className="App">
-      <DrawZone />
-      <Controls />
+      <StupidDrawing />
     </div>
   );
 }

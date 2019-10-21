@@ -41,7 +41,7 @@ const DrawZone = class extends React.Component<Props> {
       ctx.clearRect(0, 0, 943, 475);
     //}
     data.forEach((item) => {
-      if (item.constructor.name === 'Line') {
+      if (item instanceof Line) {
         if (item.highlighted) {
           this.highLightLine(item);
           this.highlightedLine = item;
@@ -58,7 +58,7 @@ const DrawZone = class extends React.Component<Props> {
     const { data } = this.props;
     if (!data.length) return;
     data.forEach((item) => {
-      if (item.constructor.name === 'Line') {
+      if (item instanceof Line) {
         if (item.isOnLine(userX, userY)) {
           this.highLightLine(item);
         } else {
@@ -129,7 +129,7 @@ const DrawZone = class extends React.Component<Props> {
         0,
       );
       data.forEach((itm, i) => {
-        if (itm.constructor.name !== 'Line') return;
+        if (!(itm instanceof Line)) return;
         if (itm === this.highlightedLine) {
           data[i].startPoint = newSP;
           data[i].endPoint = newEP;

@@ -1,50 +1,53 @@
 import React from 'react';
 import './Controls.css';
-import { isNull } from 'util';
+import Line from '../../classes/Line';
+import Point from '../../classes/Point';
 
-type Props = {
-};
-
-class Controls extends React.Component<Props> {
-    constructor(props: any) {
-        super(props);
-        this.drawLine = this.drawLine.bind(this);
-    }
-    getRandomInt(min: number, max: number) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    drawLine() {
-        const c: HTMLCanvasElement | null = document.getElementById("stupidCanvas") as HTMLCanvasElement;
-        if (isNull(c)) return;
-        var ctx = c.getContext("2d") as any;
-        const canvasWidth: number = c.width;
-        const canvasHeight: number = c.height;
-        ctx.beginPath();
-        ctx.moveTo(this.getRandomInt(0, canvasWidth), this.getRandomInt(0, canvasHeight));
-        ctx.lineTo(this.getRandomInt(0, canvasWidth), this.getRandomInt(0, canvasHeight));
-        ctx.strokeStyle = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
-        ctx.stroke();
-    }
-
-    clearCanvas() {
-        const c: HTMLCanvasElement | null = document.getElementById("stupidCanvas") as HTMLCanvasElement;
-        if (isNull(c)) return;
-        var ctx = c.getContext("2d") as any;
-        const canvasWidth: number = c.width;
-        const canvasHeight: number = c.height;
- 
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    }
-
-    render() {
-        return <div className="controls">
-            <button onClick = {this.drawLine} className="controls__btn">Draw Line</button>
-            <button onClick = {this.clearCanvas} className="controls__btn">Clear Canvas</button>
-        </div>
-    }
+interface Props {
+  updateData(data: any): void;
 }
 
+const Controls = class extends React.Component<Props, {}> {
+
+  randomIntInBounds = (lower: number, upper: number) => {
+    const min: number = Math.ceil(lower);
+    const max: number = Math.floor(upper);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  addLine = () => {
+    const { updateData } = this.props;
+    const canvasHeight = 475;
+    const canvasWidth = 943;
+    const startPoint = new Point(
+      this.randomIntInBounds(0, canvasWidth),
+      this.randomIntInBounds(0, canvasHeight),
+      0,
+    );
+    const endPoint = new Point(
+      this.randomIntInBounds(0, canvasWidth),
+      this.randomIntInBounds(0, canvasHeight),
+      0,
+    );
+    const line = new Line(0, '', startPoint, endPoint);
+    updateData(line);
+  }
+
+  clearCanvas = () => {
+    const { updateData } = this.props;
+    updateData([]);
+  }
+
+  render() {
+    return (
+      <div className="controls">
+        <button onClick={this.addLine} type="button" className="controls__btn">Draw Line</button>
+        <button onClick={this.clearCanvas} type="button" className="controls__btn">Clear Canvas</button>
+      </div>
+    );
+  }
+};
+
+// @ts-ignore
+Controls.displayName = 'Controls';
 export default Controls;

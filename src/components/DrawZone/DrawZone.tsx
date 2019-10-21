@@ -1,6 +1,7 @@
 import React from 'react';
 import './DrawZone.css';
 import Line from "../../classes/Line";
+import Point from "../../classes/Point";
 
 interface Props {
   data: any[],
@@ -8,6 +9,20 @@ interface Props {
 
 const DrawZone = class extends React.Component<Props> {
   ctx: any;
+
+  dragging: boolean;
+
+  highlightedLine: Line | null;
+
+  startPoint: Point | null;
+
+  constructor(props: Props) {
+    super(props);
+    this.dragging = false;
+    this.highlightedLine = null;
+    this.ctx = null;
+    this.startPoint = null;
+  }
 
   componentDidMount() {
     const c: any = document.getElementById('stupidCanvas');
@@ -19,19 +34,17 @@ const DrawZone = class extends React.Component<Props> {
   }
 
   componentDidUpdate() {
+    console.log("didUpdate");
     const { data } = this.props;
-    // const c: HTMLCanvasElement | null = document.getElementById('stupidCanvas') as HTMLCanvasElement;
-    //     // if (!c) return;
-    //     // const ctx = c.getContext('2d') as any;
-
     const { ctx } = this;
-    if (!data.length) {
+    //if (!data.length) {
       ctx.clearRect(0, 0, 943, 475);
-    }
+    //}
     data.forEach((item) => {
       if (item.constructor.name === 'Line') {
         if (item.highlighted) {
           this.highLightLine(item);
+          this.highlightedLine = item;
           return;
         }
         this.unHighLightLine(item);
@@ -64,6 +77,7 @@ const DrawZone = class extends React.Component<Props> {
     // eslint-disable-next-line no-bitwise
     ctx.strokeStyle = line.color;
     ctx.stroke();
+    this.highlightedLine = line;
   }
 
   unHighLightLine = (line: Line) => {
@@ -84,6 +98,49 @@ const DrawZone = class extends React.Component<Props> {
     ctx.stroke();
   }
 
+  startDrag = (e: any) => {
+    console.log(e);
+    const startX = e.nativeEvent.offsetX;
+    const startY = e.nativeEvent.offsetY;
+    if (this.highlightedLine && this.highlightedLine.isOnLine(startX, startY)) {
+      this.startPoint = new Point(startX, startY, 0);
+      return;
+    }
+    this.highlightedLine = null;
+    this.startPoint = null;
+  }
+
+  endDrag = (e: any) => {
+    console.log(e);
+    const { data } = this.props;
+    const endX = e.nativeEvent.offsetX;
+    const endY = e.nativeEvent.offsetY;
+    if (this.highlightedLine && this.startPoint) {
+      const dX = endX - this.startPoint.x;
+      const dY = endY - this.startPoint.y;
+      const newSP = new Point(
+        this.highlightedLine.startPoint.x + dX,
+        this.highlightedLine.startPoint.y + dY,
+        0,
+      );
+      const newEP = new Point(
+        this.highlightedLine.endPoint.x + dX,
+        this.highlightedLine.endPoint.y + dY,
+        0,
+      );
+      data.forEach((itm, i) => {
+        if (itm.constructor.name !== 'Line') return;
+        if (itm === this.highlightedLine) {
+          data[i].startPoint = newSP;
+          data[i].endPoint = newEP;
+        }
+      });
+      this.setState(data);
+    }
+    this.highlightedLine = null;
+    this.startPoint = null;
+  }
+
   render() {
     return (
       <div className="drawZone">
@@ -91,6 +148,8 @@ const DrawZone = class extends React.Component<Props> {
           id="stupidCanvas"
           className="stupidCanvas"
           onMouseMove={this.onMouseMoveHandler}
+          onMouseDown={this.startDrag}
+          onMouseUp={this.endDrag}
         />
       </div>
     );

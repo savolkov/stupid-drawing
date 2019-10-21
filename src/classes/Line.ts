@@ -6,10 +6,14 @@ export default class Line extends Primitive {
     super(id, name);
     this.startPoint = startPoint;
     this.endPoint = endPoint;
+    // eslint-disable-next-line no-bitwise
+    this.color = `#${(Math.random() * 0xFFFFFF << 0).toString(16)}`;
   }
 
 
   startPoint: Point;
+
+  color: string;
 
   endPoint: Point;
 }

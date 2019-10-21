@@ -3,11 +3,12 @@ import './Controls.css';
 import Line from '../../classes/Line';
 import Point from '../../classes/Point';
 
-type Props = {
-  updateData: any;
-};
+interface Props {
+  updateData(data: any): void;
+}
 
-const Controls = class extends React.Component<Props> {
+const Controls = class extends React.Component<Props, {}> {
+
   randomIntInBounds = (lower: number, upper: number) => {
     const min: number = Math.ceil(lower);
     const max: number = Math.floor(upper);
@@ -15,26 +16,38 @@ const Controls = class extends React.Component<Props> {
   }
 
   addLine = () => {
-    const canvasHeight = 100;
-    const canvasWidth = 100;
-    const startPoint = new Point(this.randomIntInBounds(0, canvasWidth), this.randomIntInBounds(0, canvasHeight), 0);
-    const endPoint = new Point(this.randomIntInBounds(0, canvasWidth), this.randomIntInBounds(0, canvasHeight), 0);
+    const { updateData } = this.props;
+    const canvasHeight = 475;
+    const canvasWidth = 943;
+    const startPoint = new Point(
+      this.randomIntInBounds(0, canvasWidth),
+      this.randomIntInBounds(0, canvasHeight),
+      0,
+    );
+    const endPoint = new Point(
+      this.randomIntInBounds(0, canvasWidth),
+      this.randomIntInBounds(0, canvasHeight),
+      0,
+    );
     const line = new Line(0, '', startPoint, endPoint);
-    this.props.updateData(line);
+    updateData(line);
   }
 
   clearCanvas = () => {
-    this.props.updateData(null);
+    const { updateData } = this.props;
+    updateData([]);
   }
 
   render() {
     return (
       <div className="controls">
-        <button className="controls__btn">Draw Line</button>
-        <button onClick={this.clearCanvas} className="controls__btn">Clear Canvas</button>
+        <button onClick={this.addLine} type="button" className="controls__btn">Draw Line</button>
+        <button onClick={this.clearCanvas} type="button" className="controls__btn">Clear Canvas</button>
       </div>
     );
   }
 };
 
+// @ts-ignore
+Controls.displayName = 'Controls';
 export default Controls;

@@ -1,50 +1,40 @@
 import React from 'react';
 import './Controls.css';
-import { isNull } from 'util';
+import Line from '../../classes/Line';
+import Point from '../../classes/Point';
 
 type Props = {
+  updateData: any;
 };
 
-class Controls extends React.Component<Props> {
-    constructor(props: any) {
-        super(props);
-        this.drawLine = this.drawLine.bind(this);
-    }
-    getRandomInt(min: number, max: number) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+const Controls = class extends React.Component<Props> {
+  randomIntInBounds = (lower: number, upper: number) => {
+    const min: number = Math.ceil(lower);
+    const max: number = Math.floor(upper);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
-    drawLine() {
-        const c: HTMLCanvasElement | null = document.getElementById("stupidCanvas") as HTMLCanvasElement;
-        if (isNull(c)) return;
-        var ctx = c.getContext("2d") as any;
-        const canvasWidth: number = c.width;
-        const canvasHeight: number = c.height;
-        ctx.beginPath();
-        ctx.moveTo(this.getRandomInt(0, canvasWidth), this.getRandomInt(0, canvasHeight));
-        ctx.lineTo(this.getRandomInt(0, canvasWidth), this.getRandomInt(0, canvasHeight));
-        ctx.strokeStyle = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
-        ctx.stroke();
-    }
+  addLine = () => {
+    const canvasHeight = 100;
+    const canvasWidth = 100;
+    const startPoint = new Point(this.randomIntInBounds(0, canvasWidth), this.randomIntInBounds(0, canvasHeight), 0);
+    const endPoint = new Point(this.randomIntInBounds(0, canvasWidth), this.randomIntInBounds(0, canvasHeight), 0);
+    const line = new Line(0, '', startPoint, endPoint);
+    this.props.updateData(line);
+  }
 
-    clearCanvas() {
-        const c: HTMLCanvasElement | null = document.getElementById("stupidCanvas") as HTMLCanvasElement;
-        if (isNull(c)) return;
-        var ctx = c.getContext("2d") as any;
-        const canvasWidth: number = c.width;
-        const canvasHeight: number = c.height;
- 
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    }
+  clearCanvas = () => {
+    this.props.updateData(null);
+  }
 
-    render() {
-        return <div className="controls">
-            <button onClick = {this.drawLine} className="controls__btn">Draw Line</button>
-            <button onClick = {this.clearCanvas} className="controls__btn">Clear Canvas</button>
-        </div>
-    }
-}
+  render() {
+    return (
+      <div className="controls">
+        <button className="controls__btn">Draw Line</button>
+        <button onClick={this.clearCanvas} className="controls__btn">Clear Canvas</button>
+      </div>
+    );
+  }
+};
 
 export default Controls;

@@ -3,8 +3,17 @@
         "browser": true,
         "es6": true
     },
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+        }
+    },
     "extends": [
-        "airbnb"
+        "airbnb",
+        "eslint:recommended",
+        "plugin:react/recommended"
     ],
     "globals": {
         "Atomics": "readonly",
@@ -23,5 +32,7 @@
         "@typescript-eslint"
     ],
     "rules": {
+        "react/jsx-filename-extension": 0,
+        "react/prefer-stateless-function": 1
     }
 }

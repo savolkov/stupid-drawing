@@ -1,4 +1,7 @@
+[![Build Status](https://travis-ci.org/savolkov/stupid-drawing.svg?branch=master)](https://travis-ci.org/savolkov/stupid-drawing)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
 
 ## Available Scripts
 

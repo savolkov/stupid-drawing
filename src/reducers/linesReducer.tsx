@@ -17,7 +17,7 @@ const linesReducer = (state = [], action: any) => {
   }
 
   if (action.type === 'CHANGE_LINE') {
-    const newState = { ...state };
+    const newState = [...state];
     // @ts-ignore
     const ind = newState.indexOf(action.oldLine);
     if (ind !== -1) {

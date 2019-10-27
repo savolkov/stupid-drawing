@@ -5,7 +5,12 @@ import Line from '../../classes/Line';
 import Point from '../../classes/Point';
 import { addLineAction, clearCanvasAction } from '../../actions/lineActions';
 
-const Controls = class extends React.Component {
+interface Props {
+  addLineAction: typeof addLineAction,
+  clearCanvasAction: typeof clearCanvasAction,
+}
+
+const Controls = class extends React.Component<Props> {
   randomIntInBounds = (lower: number, upper: number) => {
     const min: number = Math.ceil(lower);
     const max: number = Math.floor(upper);
@@ -13,6 +18,7 @@ const Controls = class extends React.Component {
   }
 
   addLine = () => {
+    const { props } = this;
     const canvasHeight = 475;
     const canvasWidth = 943;
     const startPoint = new Point(
@@ -26,13 +32,12 @@ const Controls = class extends React.Component {
       0,
     );
     const line = new Line(0, '', startPoint, endPoint);
-    // @ts-ignore
-    this.props.addLineAction(line);
+    props.addLineAction(line);
   }
 
   clearCanvas = () => {
-    // @ts-ignore
-    this.props.clearCanvasAction();
+    const { props } = this;
+    props.clearCanvasAction();
   }
 
   render() {

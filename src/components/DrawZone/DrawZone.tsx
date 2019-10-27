@@ -1,10 +1,14 @@
 import React from 'react';
 import './DrawZone.css';
-import Line from "../../classes/Line";
-import Point from "../../classes/Point";
+import { connect } from 'react-redux';
+import Line from '../../classes/Line';
+import Point from '../../classes/Point';
+import { changeLineAction } from '../../actions/lineActions';
+
 
 interface Props {
-  data: any[],
+  data: Line[];
+  changeLineAction: typeof changeLineAction,
 }
 
 const DrawZone = class extends React.Component<Props> {
@@ -34,13 +38,10 @@ const DrawZone = class extends React.Component<Props> {
   }
 
   componentDidUpdate() {
-    console.log("didUpdate");
     const { data } = this.props;
     const { ctx } = this;
-    //if (!data.length) {
-      ctx.clearRect(0, 0, 943, 475);
-    //}
-    data.forEach((item) => {
+    ctx.clearRect(0, 0, 943, 475);
+    data.forEach((item: any) => {
       if (item instanceof Line) {
         if (item.highlighted) {
           this.highLightLine(item);
@@ -57,7 +58,7 @@ const DrawZone = class extends React.Component<Props> {
     const userY = e.nativeEvent.offsetY;
     const { data } = this.props;
     if (!data.length) return;
-    data.forEach((item) => {
+    data.forEach((item: any) => {
       if (item instanceof Line) {
         if (item.isOnLine(userX, userY)) {
           this.highLightLine(item);
@@ -74,7 +75,6 @@ const DrawZone = class extends React.Component<Props> {
     ctx.lineWidth = 5;
     ctx.moveTo(line.startPoint.x, line.startPoint.y);
     ctx.lineTo(line.endPoint.x, line.endPoint.y);
-    // eslint-disable-next-line no-bitwise
     ctx.strokeStyle = line.color;
     ctx.stroke();
     this.highlightedLine = line;
@@ -99,7 +99,6 @@ const DrawZone = class extends React.Component<Props> {
   }
 
   startDrag = (e: any) => {
-    console.log(e);
     const startX = e.nativeEvent.offsetX;
     const startY = e.nativeEvent.offsetY;
     if (this.highlightedLine && this.highlightedLine.isOnLine(startX, startY)) {
@@ -111,8 +110,7 @@ const DrawZone = class extends React.Component<Props> {
   }
 
   endDrag = (e: any) => {
-    console.log(e);
-    const { data } = this.props;
+    const { props } = this;
     const endX = e.nativeEvent.offsetX;
     const endY = e.nativeEvent.offsetY;
     if (this.highlightedLine && this.startPoint) {
@@ -128,14 +126,12 @@ const DrawZone = class extends React.Component<Props> {
         this.highlightedLine.endPoint.y + dY,
         0,
       );
-      data.forEach((itm, i) => {
-        if (!(itm instanceof Line)) return;
-        if (itm === this.highlightedLine) {
-          data[i].startPoint = newSP;
-          data[i].endPoint = newEP;
-        }
-      });
-      this.setState(data);
+
+      const newLine = new Line(1, '', newSP, newEP);
+      newLine.color = this.highlightedLine.color;
+      if (this.highlightedLine) {
+        props.changeLineAction(this.highlightedLine, newLine);
+      }
     }
     this.highlightedLine = null;
     this.startPoint = null;
@@ -154,8 +150,16 @@ const DrawZone = class extends React.Component<Props> {
       </div>
     );
   }
+};
+
+const mapStateToProps = (state: any) => {
+  const data = state.linesState;
+  return { data };
 }
 
 // @ts-ignore
 DrawZone.displayName = 'DrawZone';
-export default DrawZone;
+export default connect(
+  mapStateToProps,
+  { changeLineAction },
+)(DrawZone);

@@ -11,6 +11,23 @@ interface Props {
 }
 
 const Controls = class extends React.Component<Props> {
+
+  cWidth: number;
+
+  cHeight: number;
+
+  constructor(props: Props) {
+    super(props);
+    this.cWidth = 0;
+    this.cHeight = 0;
+  }
+
+  componentDidMount() {
+    const c: any = document.getElementById('stupidCanvas');
+    this.cHeight = c.height;
+    this.cWidth = c.width;
+  }
+
   randomIntInBounds = (lower: number, upper: number) => {
     const min: number = Math.ceil(lower);
     const max: number = Math.floor(upper);
@@ -19,8 +36,8 @@ const Controls = class extends React.Component<Props> {
 
   addLine = () => {
     const { props } = this;
-    const canvasHeight = 475;
-    const canvasWidth = 943;
+    const canvasHeight = this.cHeight;
+    const canvasWidth = this.cWidth;
     const startPoint = new Point(
       this.randomIntInBounds(0, canvasWidth),
       this.randomIntInBounds(0, canvasHeight),

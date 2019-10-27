@@ -3,7 +3,12 @@ import './StupidDrawing.css';
 import { connect } from 'react-redux';
 import DrawZone from '../DrawZone/DrawZone';
 import Controls from '../Controls/Controls';
-import { addLineAction, changeLineAction, clearCanvasAction, removeLineAction } from "../../actions/lineActions";
+import {
+  addLineAction,
+  changeLineAction,
+  clearCanvasAction,
+  removeLineAction,
+} from '../../actions/lineActions';
 
 const mapStateToProps = (store: any) => ({
   data: store.linesState,

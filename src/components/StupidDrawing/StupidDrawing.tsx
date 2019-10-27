@@ -1,46 +1,34 @@
 import React from 'react';
 import './StupidDrawing.css';
+import { connect } from 'react-redux';
 import DrawZone from '../DrawZone/DrawZone';
 import Controls from '../Controls/Controls';
+import { addLineAction, changeLineAction, clearCanvasAction, removeLineAction } from "../../actions/lineActions";
 
-interface Props {
-}
+const mapStateToProps = (store: any) => ({
+  data: store.linesState,
+});
 
-interface State {
-  data: any;
-}
+const mapDispatchToProps = {
+  addLineAction,
+  removeLineAction,
+  changeLineAction,
+  clearCanvasAction,
+};
 
-class StupidDrawing extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      data: [],
-    };
-  }
-
-  updateData = (newData: any[]) => {
-    let { data } = this.state;
-    console.log(newData);
-    if (newData.length === 0) {
-      data = newData;
-      this.setState({ data });
-      return;
-    }
-    data.push(newData);
-    this.setState({ data });
-  }
-
+class StupidDrawing extends React.Component {
   render() {
-    const { data } = this.state;
     return (
       <div className="stupidDrawing">
-        <DrawZone data={data} />
-        <Controls updateData={this.updateData} />
+        <DrawZone />
+        <Controls />
       </div>
     );
   }
 }
 
 
-export default StupidDrawing;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(StupidDrawing);

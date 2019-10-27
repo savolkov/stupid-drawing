@@ -1,14 +1,11 @@
 import React from 'react';
 import './Controls.css';
+import { connect } from 'react-redux';
 import Line from '../../classes/Line';
 import Point from '../../classes/Point';
+import { addLineAction, clearCanvasAction } from '../../actions/lineActions';
 
-interface Props {
-  updateData(data: any): void;
-}
-
-const Controls = class extends React.Component<Props, {}> {
-
+const Controls = class extends React.Component {
   randomIntInBounds = (lower: number, upper: number) => {
     const min: number = Math.ceil(lower);
     const max: number = Math.floor(upper);
@@ -16,7 +13,6 @@ const Controls = class extends React.Component<Props, {}> {
   }
 
   addLine = () => {
-    const { updateData } = this.props;
     const canvasHeight = 475;
     const canvasWidth = 943;
     const startPoint = new Point(
@@ -30,12 +26,13 @@ const Controls = class extends React.Component<Props, {}> {
       0,
     );
     const line = new Line(0, '', startPoint, endPoint);
-    updateData(line);
+    // @ts-ignore
+    this.props.addLineAction(line);
   }
 
   clearCanvas = () => {
-    const { updateData } = this.props;
-    updateData([]);
+    // @ts-ignore
+    this.props.clearCanvasAction();
   }
 
   render() {
@@ -50,4 +47,7 @@ const Controls = class extends React.Component<Props, {}> {
 
 // @ts-ignore
 Controls.displayName = 'Controls';
-export default Controls;
+export default connect(
+  null,
+  { addLineAction, clearCanvasAction },
+)(Controls);

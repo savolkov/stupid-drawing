@@ -14,6 +14,10 @@ interface Props {
 const DrawZone = class extends React.Component<Props> {
   ctx: any;
 
+  cWidth: number;
+
+  cHeight: number;
+
   dragging: boolean;
 
   highlightedLine: Line | null;
@@ -26,6 +30,8 @@ const DrawZone = class extends React.Component<Props> {
     this.highlightedLine = null;
     this.ctx = null;
     this.startPoint = null;
+    this.cWidth = 0;
+    this.cHeight = 0;
   }
 
   componentDidMount() {
@@ -35,12 +41,15 @@ const DrawZone = class extends React.Component<Props> {
     c.width = c.offsetWidth;
     c.height = c.offsetHeight;
     this.ctx = c.getContext('2d');
+    this.cWidth = c.width;
+    this.cHeight = c.height;
   }
 
   componentDidUpdate() {
     const { data } = this.props;
+    const { cWidth, cHeight } = this;
     const { ctx } = this;
-    ctx.clearRect(0, 0, 943, 475);
+    ctx.clearRect(0, 0, cWidth, cHeight);
     data.forEach((item: any) => {
       if (item instanceof Line) {
         if (item.highlighted) {
@@ -58,6 +67,10 @@ const DrawZone = class extends React.Component<Props> {
     const userY = e.nativeEvent.offsetY;
     const { data } = this.props;
     if (!data.length) return;
+    if (this.dragging) {
+      this.moveLine(e, true);
+      return;
+    }
     data.forEach((item: any) => {
       if (item instanceof Line) {
         if (item.isOnLine(userX, userY)) {
@@ -103,13 +116,14 @@ const DrawZone = class extends React.Component<Props> {
     const startY = e.nativeEvent.offsetY;
     if (this.highlightedLine && this.highlightedLine.isOnLine(startX, startY)) {
       this.startPoint = new Point(startX, startY, 0);
+      this.dragging = true;
       return;
     }
     this.highlightedLine = null;
     this.startPoint = null;
   }
 
-  endDrag = (e: any) => {
+  moveLine = (e: any, moveWhileDragging: Boolean) => {
     const { props } = this;
     const endX = e.nativeEvent.offsetX;
     const endY = e.nativeEvent.offsetY;
@@ -129,12 +143,20 @@ const DrawZone = class extends React.Component<Props> {
 
       const newLine = new Line(1, '', newSP, newEP);
       newLine.color = this.highlightedLine.color;
-      if (this.highlightedLine) {
+      if (this.highlightedLine && this.dragging) {
         props.changeLineAction(this.highlightedLine, newLine);
+        this.highlightedLine = newLine;
+        this.startPoint = new Point(endX, endY, 0);
       }
     }
+    if (moveWhileDragging) return;
     this.highlightedLine = null;
     this.startPoint = null;
+    this.dragging = false;
+  }
+
+  endDrag = (e: any) => {
+    this.moveLine(e, false);
   }
 
   render() {

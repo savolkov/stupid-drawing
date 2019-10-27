@@ -19,7 +19,6 @@ const store = createStore(
 );
 /* eslint-enable */
 
-
 ReactDOM.render(
   <Provider store={store}>
     <App />

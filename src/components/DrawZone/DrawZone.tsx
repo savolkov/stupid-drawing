@@ -24,6 +24,10 @@ const DrawZone = class extends React.Component<Props> {
 
   startPoint: Point | null;
 
+  movingPoint: Point | null;
+
+  isMovingPoint: boolean;
+
   constructor(props: Props) {
     super(props);
     this.dragging = false;
@@ -32,6 +36,8 @@ const DrawZone = class extends React.Component<Props> {
     this.startPoint = null;
     this.cWidth = 0;
     this.cHeight = 0;
+    this.movingPoint = null;
+    this.isMovingPoint = false;
   }
 
   componentDidMount() {
@@ -54,9 +60,13 @@ const DrawZone = class extends React.Component<Props> {
       if (item instanceof Line) {
         if (item.highlighted) {
           this.highLightLine(item);
+          this.highlightEnd(item.startPoint, item.color);
+          this.highlightEnd(item.endPoint, item.color)
           this.highlightedLine = item;
           return;
         }
+        this.unHighlightEnd(item.endPoint);
+        this.unHighlightEnd(item.startPoint);
         this.unHighLightLine(item);
       }
     });
@@ -67,7 +77,7 @@ const DrawZone = class extends React.Component<Props> {
     const userY = e.nativeEvent.offsetY;
     const { data } = this.props;
     if (!data.length) return;
-    if (this.dragging) {
+    if (this.dragging || this.isMovingPoint) {
       this.moveLine(e, true);
       return;
     }
@@ -75,12 +85,40 @@ const DrawZone = class extends React.Component<Props> {
       if (item instanceof Line) {
         if (item.isOnLine(userX, userY)) {
           this.highLightLine(item);
+          const end = item.isOnEnd(userX, userY)
+          if (end) {
+            this.highlightEnd(end, item.color);
+          }
         } else {
+          this.unHighlightEnd(item.endPoint);
+          this.unHighlightEnd(item.startPoint);
           this.unHighLightLine(item);
         }
       }
     });
   };
+
+  highlightEnd = (pnt: Point, color: string) => {
+    const { ctx } = this;
+    const radius: number = 4;
+    ctx.beginPath();
+    ctx.arc(pnt.x, pnt.y, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  unHighlightEnd = (pnt: Point) => {
+    const { ctx } = this;
+    const radius: number = 6;
+    ctx.beginPath();
+    ctx.arc(pnt.x, pnt.y, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.stroke();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+  }
 
   highLightLine = (line: Line) => {
     const { ctx } = this;
@@ -112,50 +150,74 @@ const DrawZone = class extends React.Component<Props> {
   }
 
   startDrag = (e: any) => {
+    if (!this.highlightedLine) return;
     const startX = e.nativeEvent.offsetX;
     const startY = e.nativeEvent.offsetY;
-    if (this.highlightedLine && this.highlightedLine.isOnLine(startX, startY)) {
+    const movingPoint = this.highlightedLine.isOnEnd(startX, startY);
+
+    if (movingPoint) {
+      this.movingPoint = movingPoint;
+      this.isMovingPoint = true;
+      return;
+    }
+
+    if (this.highlightedLine.isOnLine(startX, startY)) {
       this.startPoint = new Point(startX, startY, 0);
       this.dragging = true;
       return;
     }
+
     this.highlightedLine = null;
     this.startPoint = null;
+    this.isMovingPoint = false;
+    this.movingPoint = null;
   }
 
   moveLine = (e: any, moveWhileDragging: Boolean) => {
+    if (!this.highlightedLine) return;
+
     const { props } = this;
     const endX = e.nativeEvent.offsetX;
     const endY = e.nativeEvent.offsetY;
-    if (this.highlightedLine && this.startPoint) {
+    const newLine: Line = this.highlightedLine.clone();
+
+    if (this.isMovingPoint && this.movingPoint) {
+      const dX = endX - this.movingPoint.x;
+      const dY = endY - this.movingPoint.y;
+      if (newLine.startPoint === this.movingPoint) {
+        newLine.startPoint.x += dX;
+        newLine.startPoint.y += dY;
+      }
+      if (newLine.endPoint === this.movingPoint) {
+        newLine.endPoint.x += dX;
+        newLine.endPoint.y += dY;
+      }
+    }
+
+    if (this.dragging && newLine && this.startPoint) {
       const dX = endX - this.startPoint.x;
       const dY = endY - this.startPoint.y;
-      const newSP = new Point(
-        this.highlightedLine.startPoint.x + dX,
-        this.highlightedLine.startPoint.y + dY,
-        0,
-      );
-      const newEP = new Point(
-        this.highlightedLine.endPoint.x + dX,
-        this.highlightedLine.endPoint.y + dY,
-        0,
-      );
+      newLine.startPoint.x += dX;
+      newLine.startPoint.y += dY;
+      newLine.endPoint.x += dX;
+      newLine.endPoint.y += dY;
+    }
 
-      const newLine = new Line(1, '', newSP, newEP);
-      newLine.color = this.highlightedLine.color;
-      if (this.highlightedLine && this.dragging) {
-        props.changeLineAction(this.highlightedLine, newLine);
-        this.highlightedLine = newLine;
-        this.startPoint = new Point(endX, endY, 0);
-      }
+    if (this.highlightedLine && (this.dragging || this.isMovingPoint)) {
+      props.changeLineAction(this.highlightedLine, newLine);
+      this.highlightedLine = newLine;
+      this.startPoint = new Point(endX, endY, 0);
     }
     if (moveWhileDragging) return;
     this.highlightedLine = null;
     this.startPoint = null;
     this.dragging = false;
+    this.movingPoint = null;
+    this.isMovingPoint = false;
   }
 
   endDrag = (e: any) => {
+    if (!this.highlightedLine && !this.isMovingPoint) return;
     this.moveLine(e, false);
   }
 

@@ -53,4 +53,14 @@ export default class Line extends Primitive {
     clone.color = this.color;
     return clone;
   }
+
+  getEquation(): string {
+    const A = this.endPoint.y - this.startPoint.y;
+    const B = this.endPoint.x - this.startPoint.x;
+    const C = this.startPoint.x * this.endPoint.y - this.startPoint.y * this.endPoint.x;
+    let res = `${A}x`;
+    res += (B > 0) ? `+${B}y` : `${B}y`;
+    res += (C > 0) ? `+${C}` : `${C}`;
+    return res;
+  }
 }

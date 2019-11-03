@@ -9,9 +9,26 @@ import {
   clearCanvasAction,
   removeLineAction,
 } from '../../actions/lineActions';
+import Coordinates from '../Coordinates/Coordinates';
+import { setMousePosAction } from '../../actions/mouseActions';
+
+class StupidDrawing extends React.Component {
+  render() {
+    return (
+      <div className="stupidDrawing">
+        <DrawZone />
+        <div className="controlsZone">
+          <Controls />
+          <Coordinates />
+        </div>
+      </div>
+    );
+  }
+}
 
 const mapStateToProps = (store: any) => ({
   data: store.linesState,
+  mouse: store.mouseState,
 });
 
 const mapDispatchToProps = {
@@ -19,18 +36,8 @@ const mapDispatchToProps = {
   removeLineAction,
   changeLineAction,
   clearCanvasAction,
+  setMousePosAction,
 };
-
-class StupidDrawing extends React.Component {
-  render() {
-    return (
-      <div className="stupidDrawing">
-        <DrawZone />
-        <Controls />
-      </div>
-    );
-  }
-}
 
 
 export default connect(

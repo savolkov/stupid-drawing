@@ -3,3 +3,8 @@
     flex-direction: row;
     flex-grow: 1;
 }
+.controlsZone {
+    padding: 4px 4px 4px 4px;
+    display: flex;
+    flex-direction: column;
+}

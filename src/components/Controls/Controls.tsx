@@ -59,7 +59,7 @@ const Controls = class extends React.Component<Props> {
 
   render() {
     return (
-      <div className="controls">
+      <div>
         <button onClick={this.addLine} type="button" className="controls__btn">Draw Line</button>
         <button onClick={this.clearCanvas} type="button" className="controls__btn">Clear Canvas</button>
       </div>

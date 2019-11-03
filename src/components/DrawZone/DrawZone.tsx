@@ -3,12 +3,14 @@ import './DrawZone.css';
 import { connect } from 'react-redux';
 import Line from '../../classes/Line';
 import Point from '../../classes/Point';
-import { changeLineAction } from '../../actions/lineActions';
-
+import { changeLineAction, removeLineAction } from '../../actions/lineActions';
+import { setMousePosAction } from '../../actions/mouseActions';
 
 interface Props {
   data: Line[];
   changeLineAction: typeof changeLineAction,
+  setMousePosAction: typeof setMousePosAction,
+  removeLineAction: typeof removeLineAction,
 }
 
 const DrawZone = class extends React.Component<Props> {
@@ -75,12 +77,17 @@ const DrawZone = class extends React.Component<Props> {
   onMouseMoveHandler = (e: any) => {
     const userX = e.nativeEvent.offsetX;
     const userY = e.nativeEvent.offsetY;
-    const { data } = this.props;
+    const { props } = this;
+    const { data } = props;
+    const equation = this.highlightedLine ? this.highlightedLine.getEquation() : null;
+    props.setMousePosAction(userX, userY, equation);
     if (!data.length) return;
     if (this.dragging || this.isMovingPoint) {
       this.moveLine(e, true);
       return;
     }
+    // this.highlightedLine = null;
+
     data.forEach((item: any) => {
       if (item instanceof Line) {
         if (item.isOnLine(userX, userY)) {
@@ -150,6 +157,7 @@ const DrawZone = class extends React.Component<Props> {
   }
 
   startDrag = (e: any) => {
+    if (e.nativeEvent.which === 3) return;
     if (!this.highlightedLine) return;
     const startX = e.nativeEvent.offsetX;
     const startY = e.nativeEvent.offsetY;
@@ -209,7 +217,7 @@ const DrawZone = class extends React.Component<Props> {
       this.startPoint = new Point(endX, endY, 0);
     }
     if (moveWhileDragging) return;
-    this.highlightedLine = null;
+    //this.highlightedLine = null;
     this.startPoint = null;
     this.dragging = false;
     this.movingPoint = null;
@@ -221,6 +229,16 @@ const DrawZone = class extends React.Component<Props> {
     this.moveLine(e, false);
   }
 
+  rightClick = (e: any) => {
+    e.preventDefault();
+    console.log(this);
+    const { props } = this;
+    if (this.highlightedLine) {
+      props.removeLineAction(this.highlightedLine);
+      this.highlightedLine = null;
+    }
+  }
+
   render() {
     return (
       <div className="drawZone">
@@ -230,6 +248,7 @@ const DrawZone = class extends React.Component<Props> {
           onMouseMove={this.onMouseMoveHandler}
           onMouseDown={this.startDrag}
           onMouseUp={this.endDrag}
+          onContextMenu={this.rightClick}
         />
       </div>
     );
@@ -245,5 +264,5 @@ const mapStateToProps = (state: any) => {
 DrawZone.displayName = 'DrawZone';
 export default connect(
   mapStateToProps,
-  { changeLineAction },
+  { changeLineAction, setMousePosAction, removeLineAction },
 )(DrawZone);

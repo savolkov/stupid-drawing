@@ -6,9 +6,11 @@ import { Provider } from 'react-redux';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import linesReducer from './reducers/linesReducer';
+import mouseReducer from './reducers/mouseReducer';
 
 const reducers = combineReducers({
   linesState: linesReducer,
+  mouseState: mouseReducer,
 });
 
 /* eslint-disable no-underscore-dangle */

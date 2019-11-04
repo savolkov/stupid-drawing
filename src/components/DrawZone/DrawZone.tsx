@@ -86,12 +86,12 @@ const DrawZone = class extends React.Component<Props> {
       this.moveLine(e, true);
       return;
     }
-    // this.highlightedLine = null;
-
+    let flag = false;
     data.forEach((item: any) => {
       if (item instanceof Line) {
         if (item.isOnLine(userX, userY)) {
           this.highLightLine(item);
+          flag = true;
           const end = item.isOnEnd(userX, userY)
           if (end) {
             this.highlightEnd(end, item.color);
@@ -103,6 +103,7 @@ const DrawZone = class extends React.Component<Props> {
         }
       }
     });
+    if (!flag) this.highlightedLine = null;
   };
 
   highlightEnd = (pnt: Point, color: string) => {

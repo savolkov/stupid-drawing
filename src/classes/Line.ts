@@ -33,7 +33,7 @@ export default class Line extends Primitive {
     const y2 = this.endPoint.y;
     this.highlighted = ((Math.abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1)
       / Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1))) < radius)
-    && (x >= x1 && x <= x2)
+    && (x >= x1 - radius && x <= x2 + radius)
     return this.highlighted;
   }
 

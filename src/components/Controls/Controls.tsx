@@ -1,6 +1,10 @@
 import React from 'react';
 import './Controls.css';
 import { connect } from 'react-redux';
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import { styled } from '@material-ui/styles';
 import Line from '../../classes/Line';
 import Point from '../../classes/Point';
 import { addLineAction, clearCanvasAction } from '../../actions/lineActions';
@@ -10,8 +14,11 @@ interface Props {
   clearCanvasAction: typeof clearCanvasAction,
 }
 
-const Controls = class extends React.Component<Props> {
+const MyButton = styled(Button)({
+  marginRight: '4px',
+});
 
+const Controls = class extends React.Component<Props> {
   cWidth: number;
 
   cHeight: number;
@@ -59,10 +66,11 @@ const Controls = class extends React.Component<Props> {
 
   render() {
     return (
-      <div>
-        <button onClick={this.addLine} type="button" className="controls__btn">Draw Line</button>
-        <button onClick={this.clearCanvas} type="button" className="controls__btn">Clear Canvas</button>
-      </div>
+      <Paper className="controls__paper">
+        <Typography variant="h6"> Controls </Typography>
+        <MyButton variant="contained" color="primary" onClick={this.addLine} type="button">Draw Line</MyButton>
+        <MyButton variant="outlined" color="primary" onClick={this.clearCanvas} type="button">Clear Canvas</MyButton>
+      </Paper>
     );
   }
 };

@@ -6,7 +6,6 @@ const linesReducer = (state = [], action: any) => {
   }
 
   if (action.type === 'REMOVE_LINE') {
-    debugger;
     // @ts-ignore
     const newState = state.filter((itm) => itm !== action.line);
     return newState;

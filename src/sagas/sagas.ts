@@ -31,7 +31,7 @@ function* watchLineActions(params: any) {
   console.log(params);
   yield takeEvery('ADD_LINE', addLine, params);
   yield takeEvery('REMOVE_LINE', removeLine, params);
-  yield takeEvery('CHANGE_LINE', changeLine, params);
+  yield takeLatest('CHANGE_LINE', changeLine, params);
   yield takeEvery('CLEAR_CANVAS', clearCanvas, params);
 
 }

@@ -5,7 +5,7 @@ import Line from '../classes/Line';
 import Point from '../classes/Point';
 
 export default function setupSocket(dispatch: any) {
-  const socket = new WebSocket('wss://stupid-drawing-stage.herokuapp.com:1337');
+  const socket = new WebSocket('wss://stupid-drawing-stage.herokuapp.com');
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
     let line: Line;

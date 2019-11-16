@@ -55,7 +55,8 @@ const Controls = class extends React.Component<Props> {
       this.randomIntInBounds(0, canvasHeight),
       0,
     );
-    const line = new Line(0, '', startPoint, endPoint);
+    // eslint-disable-next-line no-bitwise
+    const line = new Line(0, '', startPoint, endPoint, `#${(Math.random() * 0xFFFFFF << 0).toString(16)}`);
     props.addLineAction(line);
   }
 

@@ -1,12 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
+import createSagaMiddleware from 'redux-saga';
 import { Provider } from 'react-redux';
+import rootSaga from './sagas/sagas';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import linesReducer from './reducers/linesReducer';
 import mouseReducer from './reducers/mouseReducer';
+import setupSocket from './sockets/sockets';
+
+const sagaMiddleware = createSagaMiddleware();
 
 const reducers = combineReducers({
   linesState: linesReducer,
@@ -14,12 +19,17 @@ const reducers = combineReducers({
 });
 
 /* eslint-disable no-underscore-dangle */
+// @ts-ignore
+const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
   reducers,
-  // @ts-ignore
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+  composeEnhancer(applyMiddleware(sagaMiddleware)),
 );
 /* eslint-enable */
+
+const socket = setupSocket(store.dispatch);
+// @ts-ignore
+sagaMiddleware.run(rootSaga, { socket });
 
 ReactDOM.render(
   <Provider store={store}>

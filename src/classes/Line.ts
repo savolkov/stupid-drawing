@@ -2,7 +2,7 @@ import Point from './Point';
 import Primitive from './Primitive';
 
 export default class Line extends Primitive {
-  constructor(id: number, name: string, startPoint: Point, endPoint: Point) {
+  constructor(id: number, name: string, startPoint: Point, endPoint: Point, color: string) {
     super(id, name);
     if (startPoint.x < endPoint.x) {
       this.startPoint = startPoint;
@@ -13,7 +13,7 @@ export default class Line extends Primitive {
     }
 
     // eslint-disable-next-line no-bitwise
-    this.color = `#${(Math.random() * 0xFFFFFF << 0).toString(16)}`;
+    this.color = color;
     this.highlighted = false;
   }
 
@@ -49,8 +49,7 @@ export default class Line extends Primitive {
   }
 
   clone(): Line {
-    const clone: Line = new Line(this.id, this.name, this.startPoint, this.endPoint);
-    clone.color = this.color;
+    const clone: Line = new Line(this.id, this.name, this.startPoint, this.endPoint, this.color);
     return clone;
   }
 

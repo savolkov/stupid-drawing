@@ -5,4 +5,33 @@
 canvas {
     border: 1px solid lightgray;
     display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.react-contextmenu-wrapper {
+    width: 100%;
+    height: 100%;
+}
+.menuItem {
+    background-color: #ffffff;
+    border-left: 1px solid #D3D3D3;
+    border-right: 1px solid #D3D3D3;
+
+    padding: 4px 2px 4px 2px;
+ }
+.menuItem:hover {
+    background-color: #DCDCDC !important;
+}
+.menuItem:first-child {
+    background-color: #ffffff !important;;
+    border-top: 1px solid #D3D3D3;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+ }
+.menuItem:last-child {
+    background-color: #ffffff;
+    border-bottom: 1px solid #D3D3D3;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
 }

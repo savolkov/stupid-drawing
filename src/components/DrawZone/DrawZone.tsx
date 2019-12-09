@@ -5,6 +5,8 @@ import Line from '../../classes/Line';
 import Point from '../../classes/Point';
 import { changeLineAction, removeLineAction } from '../../actions/lineActions';
 import { setMousePosAction } from '../../actions/mouseActions';
+import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+import {ColorResult, TwitterPicker} from 'react-color';
 
 interface Props {
   data: Line[];
@@ -44,20 +46,23 @@ const DrawZone = class extends React.Component<Props> {
 
   componentDidMount() {
     const c: any = document.getElementById('stupidCanvas');
-    c.style.width = '100%';
-    c.style.height = '100%';
+    // Make it visually fill the positioned parent
+    c.style.width ='100%';
+    c.style.height='100%';
+
+    // ...then set the internal size to match
     c.width = c.offsetWidth;
     c.height = c.offsetHeight;
     this.ctx = c.getContext('2d');
     this.cWidth = c.width;
     this.cHeight = c.height;
+    this.prepareField();
   }
 
   componentDidUpdate() {
+    console.log('wqwaw');
     const { data } = this.props;
-    const { cWidth, cHeight } = this;
-    const { ctx } = this;
-    ctx.clearRect(0, 0, cWidth, cHeight);
+    this.prepareField();
     data.forEach((item: any) => {
       if (item instanceof Line) {
         if (item.highlighted) {
@@ -213,7 +218,7 @@ const DrawZone = class extends React.Component<Props> {
     }
 
     if (this.highlightedLine && (this.dragging || this.isMovingPoint)) {
-      props.changeLineAction(this.highlightedLine, newLine);
+      props.changeLineAction(this.highlightedLine.id, newLine);
       this.highlightedLine = newLine;
       this.startPoint = new Point(endX, endY, 0);
     }
@@ -230,27 +235,61 @@ const DrawZone = class extends React.Component<Props> {
     this.moveLine(e, false);
   }
 
-  rightClick = (e: any) => {
-    e.preventDefault();
+  deleteLine = (e: any) => {
     console.log(this);
     const { props } = this;
     if (this.highlightedLine) {
-      props.removeLineAction(this.highlightedLine);
+      props.removeLineAction(this.highlightedLine.id);
       this.highlightedLine = null;
+    }
+  };
+
+  changeLineColor = (color: ColorResult) => {
+    const { props } = this;
+    if (this.highlightedLine) {
+      const newLine = this.highlightedLine.clone();
+      newLine.color = color.hex;
+      props.changeLineAction(this.highlightedLine.id, newLine);
+    }
+  }
+
+  prepareField = () => {
+    const { cWidth, cHeight } = this;
+    const { ctx } = this;
+    ctx.clearRect(0, 0, cWidth, cHeight);
+    ctx.fillStyle = '#778899';
+    const rect = 50;
+    for (let x = 5; x < cWidth; x += rect) {
+      for (let y = 5; y < cHeight; y += rect) {
+        ctx.fillRect(x, y,1,1);
+      }
     }
   }
 
   render() {
     return (
       <div className="drawZone">
+        <ContextMenuTrigger id="drawZoneCtxMenu">
         <canvas
           id="stupidCanvas"
           className="stupidCanvas"
           onMouseMove={this.onMouseMoveHandler}
           onMouseDown={this.startDrag}
           onMouseUp={this.endDrag}
-          onContextMenu={this.rightClick}
         />
+        </ContextMenuTrigger>
+        <ContextMenu id="drawZoneCtxMenu">
+          <MenuItem className='menuItem'>
+            <TwitterPicker
+              color={this.highlightedLine ? this.highlightedLine.color : "fefefe"}
+              onChange={this.changeLineColor}
+              triangle={"hide"}
+            />
+          </MenuItem>
+          <MenuItem onClick={this.deleteLine} className='menuItem'>
+            Delete Line
+          </MenuItem>
+        </ContextMenu>
       </div>
     );
   }
@@ -259,7 +298,7 @@ const DrawZone = class extends React.Component<Props> {
 const mapStateToProps = (state: any) => {
   const data = state.linesState;
   return { data };
-}
+};
 
 // @ts-ignore
 DrawZone.displayName = 'DrawZone';

@@ -8,6 +8,7 @@ import { styled } from '@material-ui/styles';
 import Line from '../../classes/Line';
 import Point from '../../classes/Point';
 import { addLineAction, clearCanvasAction } from '../../actions/lineActions';
+import nanoid from 'nanoid';
 
 interface Props {
   addLineAction: typeof addLineAction,
@@ -55,7 +56,7 @@ const Controls = class extends React.Component<Props> {
       this.randomIntInBounds(0, canvasHeight),
       0,
     );
-    const line = new Line(0, '', startPoint, endPoint);
+    const line = new Line(nanoid(), '', startPoint, endPoint);
     props.addLineAction(line);
   }
 

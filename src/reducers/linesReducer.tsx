@@ -1,4 +1,6 @@
-const linesReducer = (state = [], action: any) => {
+import Line from "../classes/Line";
+
+const linesReducer = (state: Line[] = [], action: any) => {
   if (action.type === 'ADD_LINE') {
     // @ts-ignore
     const newState = state.concat([action.line]);
@@ -6,9 +8,7 @@ const linesReducer = (state = [], action: any) => {
   }
 
   if (action.type === 'REMOVE_LINE') {
-    debugger;
-    // @ts-ignore
-    const newState = state.filter((itm) => itm !== action.line);
+    const newState = state.filter((itm) => itm.id !== action.id);
     return newState;
   }
 
@@ -19,8 +19,8 @@ const linesReducer = (state = [], action: any) => {
 
   if (action.type === 'CHANGE_LINE') {
     const newState = [...state];
-    // @ts-ignore
-    const ind = newState.indexOf(action.oldLine);
+    const ids = newState.map((itm) => itm.id);
+    const ind = ids.indexOf(action.id);
     if (ind !== -1) {
       // @ts-ignore
       newState[ind] = action.newLine;

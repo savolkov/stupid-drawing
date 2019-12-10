@@ -9,6 +9,7 @@ import Line from '../../classes/Line';
 import Point from '../../classes/Point';
 import { addLineAction, clearCanvasAction } from '../../actions/lineActions';
 import nanoid from 'nanoid';
+import SetEquation from "../SetEquation/SetEquation";
 
 interface Props {
   addLineAction: typeof addLineAction,
@@ -21,7 +22,6 @@ const MyButton = styled(Button)({
 
 const Controls = class extends React.Component<Props> {
   cWidth: number;
-
   cHeight: number;
 
   constructor(props: Props) {
@@ -71,6 +71,7 @@ const Controls = class extends React.Component<Props> {
         <Typography variant="h6"> Controls </Typography>
         <MyButton variant="contained" color="primary" onClick={this.addLine} type="button">Draw Line</MyButton>
         <MyButton variant="outlined" color="primary" onClick={this.clearCanvas} type="button">Clear Canvas</MyButton>
+        <SetEquation />
       </Paper>
     );
   }

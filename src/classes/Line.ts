@@ -55,9 +55,9 @@ export default class Line extends Primitive {
   }
 
   getEquation(): string {
-    const A = this.endPoint.y - this.startPoint.y;
-    const B = this.endPoint.x - this.startPoint.x;
-    const C = this.startPoint.x * this.endPoint.y - this.startPoint.y * this.endPoint.x;
+    const A = this.startPoint.y - this.endPoint.y; // 1 - 2
+    const B = this.endPoint.x - this.startPoint.x; // 2 - 1
+    const C = this.startPoint.x * this.endPoint.y - this.startPoint.y * this.endPoint.x; // 12 - 21
     let res = `${A}x`;
     res += (B > 0) ? `+${B}y` : `${B}y`;
     res += (C > 0) ? `+${C}` : `${C}`;

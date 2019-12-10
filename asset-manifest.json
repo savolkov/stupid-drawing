@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/stupid-drawing/static/css/main.fb14547e.chunk.css",
+    "main.js": "/stupid-drawing/static/js/main.d3c54523.chunk.js",
+    "main.js.map": "/stupid-drawing/static/js/main.d3c54523.chunk.js.map",
+    "runtime-main.js": "/stupid-drawing/static/js/runtime-main.91e53bdd.js",
+    "runtime-main.js.map": "/stupid-drawing/static/js/runtime-main.91e53bdd.js.map",
+    "static/js/2.6aa14faf.chunk.js": "/stupid-drawing/static/js/2.6aa14faf.chunk.js",
+    "static/js/2.6aa14faf.chunk.js.map": "/stupid-drawing/static/js/2.6aa14faf.chunk.js.map",
+    "index.html": "/stupid-drawing/index.html",
+    "precache-manifest.05441fca4d82c1877de038c1db90eeff.js": "/stupid-drawing/precache-manifest.05441fca4d82c1877de038c1db90eeff.js",
+    "service-worker.js": "/stupid-drawing/service-worker.js",
+    "static/css/main.fb14547e.chunk.css.map": "/stupid-drawing/static/css/main.fb14547e.chunk.css.map"
+  }
+}

@@ -1,0 +1,6 @@
+.equation {
+    margin: 8px 0px 8px 0px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}

@@ -5,14 +5,14 @@ export const addLineAction = (line: Line) => ({
   line,
 });
 
-export const removeLineAction = (line: Line) => ({
+export const removeLineAction = (id: string) => ({
   type: 'REMOVE_LINE',
-  line,
+  id,
 });
 
-export const changeLineAction = (oldLine: Line, newLine: Line) => ({
+export const changeLineAction = (id: string, newLine: Line) => ({
   type: 'CHANGE_LINE',
-  oldLine,
+  id,
   newLine,
 });
 

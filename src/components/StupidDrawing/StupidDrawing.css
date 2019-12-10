@@ -7,4 +7,5 @@
     padding: 4px 4px 4px 4px;
     display: flex;
     flex-direction: column;
+    flex-grow: 0;
 }

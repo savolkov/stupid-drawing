@@ -10,7 +10,7 @@ import {
 } from './actions/lineActions';
 
 const mapStateToProps = (store: any) => ({
-  data: store.linesState,
+  lines: store.linesState,
 });
 
 const mapDispatchToProps = {

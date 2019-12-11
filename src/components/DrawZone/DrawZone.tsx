@@ -7,12 +7,18 @@ import { changeLineAction, removeLineAction } from '../../actions/lineActions';
 import { setMousePosAction } from '../../actions/mouseActions';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import {ColorResult, TwitterPicker} from 'react-color';
+import {addGroupAction, removeGroupAction} from "../../actions/groupActions";
+import nanoid from "nanoid";
+import Group from "../../classes/Group";
 
 interface Props {
-  data: Line[];
+  lines: Line[];
+  groups: Group[];
   changeLineAction: typeof changeLineAction,
   setMousePosAction: typeof setMousePosAction,
   removeLineAction: typeof removeLineAction,
+  addGroupAction: typeof addGroupAction,
+  removeGroupAction: typeof removeGroupAction,
 }
 
 const DrawZone = class extends React.Component<Props> {
@@ -32,6 +38,8 @@ const DrawZone = class extends React.Component<Props> {
 
   isMovingPoint: boolean;
 
+  selectedLines: Line[] | null;
+
   constructor(props: Props) {
     super(props);
     this.dragging = false;
@@ -42,6 +50,7 @@ const DrawZone = class extends React.Component<Props> {
     this.cHeight = 0;
     this.movingPoint = null;
     this.isMovingPoint = false;
+    this.selectedLines = null;
   }
 
   componentDidMount() {
@@ -49,7 +58,6 @@ const DrawZone = class extends React.Component<Props> {
     // Make it visually fill the positioned parent
     c.style.width ='100%';
     c.style.height='100%';
-
     // ...then set the internal size to match
     c.width = c.offsetWidth;
     c.height = c.offsetHeight;
@@ -60,51 +68,60 @@ const DrawZone = class extends React.Component<Props> {
   }
 
   componentDidUpdate() {
-    console.log('wqwaw');
-    const { data } = this.props;
+    const { lines } = this.props;
     this.prepareField();
-    data.forEach((item: any) => {
+    lines.forEach((item: any) => {
       if (item instanceof Line) {
         if (item.highlighted) {
           this.highLightLine(item);
           this.highlightEnd(item.startPoint, item.color);
-          this.highlightEnd(item.endPoint, item.color)
+          this.highlightEnd(item.endPoint, item.color);
           this.highlightedLine = item;
           return;
+        }
+        if (this.checkIfSelected(item)) {
+          this.showSelection(item);
         }
         this.unHighlightEnd(item.endPoint);
         this.unHighlightEnd(item.startPoint);
         this.unHighLightLine(item);
       }
     });
-  }
+  };
 
   onMouseMoveHandler = (e: any) => {
     const userX = e.nativeEvent.offsetX;
     const userY = e.nativeEvent.offsetY;
     const { props } = this;
-    const { data } = props;
+    const { lines } = props;
     const equation = this.highlightedLine ? this.highlightedLine.getEquation() : null;
     props.setMousePosAction(userX, userY, equation);
-    if (!data.length) return;
+    if (!lines.length) return;
+
     if (this.dragging || this.isMovingPoint) {
       this.moveLine(e, true);
       return;
     }
+
     let flag = false;
-    data.forEach((item: any) => {
+    let highlightedGroup: Line[] = [];
+    lines.forEach((item: any) => {
       if (item instanceof Line) {
         if (item.isOnLine(userX, userY)) {
           this.highLightLine(item);
           flag = true;
-          const end = item.isOnEnd(userX, userY)
+          const end = item.isOnEnd(userX, userY);
           if (end) {
             this.highlightEnd(end, item.color);
+          }
+          if (item.groupId) {
+            highlightedGroup = this.selectGroup(item.groupId);
+            highlightedGroup.forEach(itm => this.showSelection(itm));
           }
         } else {
           this.unHighlightEnd(item.endPoint);
           this.unHighlightEnd(item.startPoint);
-          this.unHighLightLine(item);
+          if (!highlightedGroup.some(h => h.id == item.id)) this.unHighLightLine(item);
         }
       }
     });
@@ -120,7 +137,7 @@ const DrawZone = class extends React.Component<Props> {
     ctx.stroke();
     ctx.fillStyle = color;
     ctx.fill();
-  }
+  };
 
   unHighlightEnd = (pnt: Point) => {
     const { ctx } = this;
@@ -131,7 +148,7 @@ const DrawZone = class extends React.Component<Props> {
     ctx.stroke();
     ctx.fillStyle = '#FFFFFF';
     ctx.fill();
-  }
+  };
 
   highLightLine = (line: Line) => {
     const { ctx } = this;
@@ -142,9 +159,30 @@ const DrawZone = class extends React.Component<Props> {
     ctx.strokeStyle = line.color;
     ctx.stroke();
     this.highlightedLine = line;
-  }
+  };
 
-  unHighLightLine = (line: Line) => {
+  drawLine = (line: Line) => {
+    const { ctx } = this;
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.moveTo(line.startPoint.x, line.startPoint.y);
+    ctx.lineTo(line.endPoint.x, line.endPoint.y);
+    ctx.strokeStyle = line.color;
+    ctx.stroke();
+  };
+
+  showSelection = (line: Line) => {
+    const { ctx } = this;
+    ctx.beginPath();
+    ctx.lineWidth = 5;
+    ctx.moveTo(line.startPoint.x, line.startPoint.y);
+    ctx.lineTo(line.endPoint.x, line.endPoint.y);
+    ctx.strokeStyle = "#6593F5";
+    ctx.stroke();
+    this.drawLine(line);
+  };
+
+  removeLine = (line: Line) => {
     const { ctx } = this;
     ctx.beginPath();
     ctx.lineWidth = 6;
@@ -153,18 +191,51 @@ const DrawZone = class extends React.Component<Props> {
     // eslint-disable-next-line no-bitwise
     ctx.strokeStyle = '#ffffff';
     ctx.stroke();
+  };
 
-    ctx.lineWidth = 2;
-    ctx.moveTo(line.startPoint.x, line.startPoint.y);
-    ctx.lineTo(line.endPoint.x, line.endPoint.y);
-    // eslint-disable-next-line no-bitwise
-    ctx.strokeStyle = line.color;
-    ctx.stroke();
-  }
+  unHighLightLine = (line: Line) => {
+    this.removeLine(line);
+    this.drawLine(line);
+    if (this.checkIfSelected(line)) {
+      this.showSelection(line);
+    }
+  };
+
+  controlSelection = (line: Line): boolean => {
+    if (this.selectedLines == null) {
+      this.selectedLines = [line];
+      return true;
+    }
+    if (this.selectedLines.some(sel => sel.id === line.id)) {
+      this.selectedLines = this.selectedLines.filter(sl => sl.id !== line.id);
+      return false;
+    }
+    this.selectedLines.push(line);
+    return true;
+  };
+
+  checkIfSelected = (line: Line): boolean => {
+    return (!!this.selectedLines) && this.selectedLines.some(sl => sl.id === line.id);
+  };
+
+  selectGroup = (groupId: string): Line[] => {
+    const { lines } = this.props;
+    return lines.filter(line => line.groupId === groupId);
+}
 
   startDrag = (e: any) => {
     if (e.nativeEvent.which === 3) return;
     if (!this.highlightedLine) return;
+
+    if (e.ctrlKey) {
+      const added = this.controlSelection(this.highlightedLine);
+      if (added) {
+        this.showSelection(this.highlightedLine);
+      } else {
+        this.unHighLightLine(this.highlightedLine);
+      }
+      return;
+    }
     const startX = e.nativeEvent.offsetX;
     const startY = e.nativeEvent.offsetY;
     const movingPoint = this.highlightedLine.isOnEnd(startX, startY);
@@ -223,7 +294,7 @@ const DrawZone = class extends React.Component<Props> {
       this.startPoint = new Point(endX, endY, 0);
     }
     if (moveWhileDragging) return;
-    //this.highlightedLine = null;
+
     this.startPoint = null;
     this.dragging = false;
     this.movingPoint = null;
@@ -236,12 +307,27 @@ const DrawZone = class extends React.Component<Props> {
   }
 
   deleteLine = (e: any) => {
-    console.log(this);
     const { props } = this;
     if (this.highlightedLine) {
       props.removeLineAction(this.highlightedLine.id);
       this.highlightedLine = null;
     }
+  };
+
+  createGroup = (e: any) => {
+    console.log(this.selectedLines);
+    const { props } = this;
+    if (!this.selectedLines) return;
+    if (this.selectedLines.length <= 1) return;
+    const gId = nanoid();
+    props.addGroupAction(new Group(gId, ''));
+    this.selectedLines.forEach(sl => {
+      sl.groupId = gId;
+      this.unHighLightLine(sl);
+      console.log(sl);
+      props.changeLineAction(sl.id, sl);
+    });
+    this.selectedLines = null;
   };
 
   changeLineColor = (color: ColorResult) => {
@@ -251,7 +337,7 @@ const DrawZone = class extends React.Component<Props> {
       newLine.color = color.hex;
       props.changeLineAction(this.highlightedLine.id, newLine);
     }
-  }
+  };
 
   prepareField = () => {
     const { cWidth, cHeight } = this;
@@ -269,7 +355,7 @@ const DrawZone = class extends React.Component<Props> {
   render() {
     return (
       <div className="drawZone">
-        <ContextMenuTrigger id="drawZoneCtxMenu">
+        <ContextMenuTrigger id="drawZoneCtxMenu" holdToDisplay={-1}>
         <canvas
           id="stupidCanvas"
           className="stupidCanvas"
@@ -289,6 +375,9 @@ const DrawZone = class extends React.Component<Props> {
           <MenuItem onClick={this.deleteLine} className='menuItem'>
             Delete Line
           </MenuItem>
+          <MenuItem onClick={this.createGroup} className='menuItem'>
+            Create Group
+          </MenuItem>
         </ContextMenu>
       </div>
     );
@@ -296,13 +385,20 @@ const DrawZone = class extends React.Component<Props> {
 };
 
 const mapStateToProps = (state: any) => {
-  const data = state.linesState;
-  return { data };
+  const lines = state.linesState;
+  const groups = state.groupsState;
+  return { lines, groups };
 };
 
 // @ts-ignore
 DrawZone.displayName = 'DrawZone';
 export default connect(
   mapStateToProps,
-  { changeLineAction, setMousePosAction, removeLineAction },
+  {
+    changeLineAction,
+    setMousePosAction,
+    removeLineAction,
+    addGroupAction,
+    removeGroupAction,
+  },
 )(DrawZone);

@@ -2,8 +2,9 @@ import Point from './Point';
 import Primitive from './Primitive';
 
 export default class Line extends Primitive {
-  constructor(id: string, name: string, startPoint: Point, endPoint: Point) {
+  constructor(id: string, name: string, startPoint: Point, endPoint: Point, groupId: string | null = null) {
     super(id, name);
+    this.groupId = groupId;
     if (startPoint.x < endPoint.x) {
       this.startPoint = startPoint;
       this.endPoint = endPoint;
@@ -24,6 +25,8 @@ export default class Line extends Primitive {
   endPoint: Point;
 
   highlighted: boolean;
+
+  groupId:string |null;
 
   isOnLine(x: number, y: number): boolean {
     const radius: number = 10;

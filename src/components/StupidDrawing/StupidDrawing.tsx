@@ -27,8 +27,9 @@ class StupidDrawing extends React.Component {
 }
 
 const mapStateToProps = (store: any) => ({
-  data: store.linesState,
+  lines: store.linesState,
   mouse: store.mouseState,
+  groups: store.groupsState,
 });
 
 const mapDispatchToProps = {
